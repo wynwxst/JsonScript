@@ -22,6 +22,33 @@ SELECT hello
 FROM example
 ```
 
+Selecting multiple
+```
+SELECT hello, hi 
+SELECT hola,hey
+FROM example
+```
+
+If the value is not just one away
+
+eg.
+
+the json:
+```json
+{"hello":{"hi":"I need hi","bye":"don't need this"}}
+```
+the mdb:
+```
+SELECT hello:hi
+FROM example
+SHOW
+```
+output:
+```json
+{"hello":{"hi":"I need hi"}}
+```
+
+
 To show the database in json simply add
 
 ```
@@ -29,8 +56,12 @@ SELECT hello
 FROM example
 SHOW
 ```
+
 Leave blank for the most previously defined FROM to show
 
 ### TODO :
 [-] SELECT, FROM and SHOW
+
 [ ] INSERT
+
+[ ] GET
