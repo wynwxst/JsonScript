@@ -52,7 +52,7 @@ def main():
     files = []
     for file in os.listdir(os.getcwd()):
       files.append(file)
-    if opt.startswith("--") == False and opt.endswith(".mdb"):
+    if opt.startswith("--") == False and opt.endswith(".jsc"):
       arg = opt
 
       files = []
@@ -91,11 +91,11 @@ def main():
             toselect = item.split(",")
             if toselect == []:
               raise RuntimeError("No data given to SELECT")
-          elif item.startswith("FROM"):
-            item = item.replace("FROM ","")
+          elif item.startswith("USE"):
+            item = item.replace("USE ","")
             FROM = item
             if f"{FROM}.json" not in files:
-              raise FileNotFoundError(f"ERROR: FROM {FROM} NOT FOUND")
+              raise FileNotFoundError(f"ERROR: USE {FROM} NOT FOUND")
             
 
           elif item.startswith("SHOW"):
@@ -154,32 +154,91 @@ def main():
 
             toshow = item.replace("INSERT ","")
             toshowe = item.replace("INSERT","")
+            y = toshowe.split(":")
+
+
 
             if toshow == "" or toshowe == "":
+              raise RuntimeError("ERROR: INSERT NOT GIVEN PROPER ARGS")
               
-              
+            if len(y) == 1:
               with open(f"{os.getcwd()}/{FROM}.json","r") as zl:
                 contj = json.load(zl)
                 cont = zl.read()
-                y = val.split(":")
-                if len(y) == 1:
-                  db[val] = contj[val]
+              toshow = toshow.split(" AS ")
+              try:
+                toshow = toshow.split(" as ")
+              except:
+                alr = "ok"
+              toj = toshow[1:]
+              ll = "".join(toj)
+              contj[toshow[0]] = ll
+              with open(f"{os.getcwd()}/{FROM}.json","w") as xl:
+                json.dump(contj,xl)
+            else:
+              with open(f"{os.getcwd()}/{FROM}.json","r") as zl:
+                contj = json.load(zl)
+                cont = zl.read()
+              toshow = toshow.split(" AS ")
+              try:
+                toshow = toshow.split(" as ")
+              except:
+                alr = "ok"
+              ee = toshow[0].split(":")
+              toa = ""
+              locel = {}
+              for toadd in ee:
+                if toadd != ee[len(ee)-1]:
+                  
+                  toa += f"['{toadd}']"
+                  b = "{}"
+                  exec(f"def wrdb():\n  db{toa} = {b}\n  return db\nlz = wrdb()",{"db":contj,"to":toa},locel)
                 else:
-                  linez = "db"
-                  toexec = ""
-                  for vals in y:
-                    loc = {}
-                    toexec += f"['{vals}']"
-                    if vals != y[len(y)-1]:
 
-                      exec(f"def dbx():\n db{toexec} = {dict({})}\n return db\nll = dbx()",{"db":db,"dict":contj,"todo":"{}"},loc)
-                      if vals != y[len(y)-1]:
-                        toadd = f"[{vals}] = " + "{}"
-                    else:
+                  todump = locel["lz"]
+                  
+                  with open(f"{os.getcwd()}/{FROM}.json","w") as xl:
+                    json.dump(todump,xl)
+                  with open(f"{os.getcwd()}/{FROM}.json","r") as zl:
+                    contj = json.load(zl)
+                  locelz = {}
+                  toj = toshow[1:]
+                  ll = "".join(toj)
+                  exec(f"def wrdb():\n  db{toa}['{ee[len(ee)-1]}'] = '{ll}'\n  return db\nlz = wrdb()",{"db":contj,"to":toa},locelz)
+                  todump = locelz["lz"]
+                  with open(f"{os.getcwd()}/{FROM}.json","w") as xl:
+                    json.dump(todump,xl)
+          elif item.startswith("CREATE"):
+            files = []
+            for file in os.listdir(os.getcwd()):
+              files.append(file)
+            
 
-                      exec(f"def drx():\n db{toexec} = dict{toexec}\n return db\nll = drx()",{"db":db,"dict":contj,"todo":"{}"},loc)
-                      if vals != y[len(y)-1]:
-                        toadd = f"[{vals}] = " + "{}"
+            toshow = item.replace("CREATE ","")
+            toshow = item.replace("CREATE","")
+            if toshow == "":
+              raise RuntimeError("ERROR: CREATION NOT SPECIFIED")
+            else:
+              toshow = toshow.replace(" ","")
+              if f"{toshow}.json" not in files:
+                run(f"touch {os.getcwd()}/{toshow}.json")
+                with open(f"{os.getcwd()}/{toshow}.json","w") as lm:
+                  lm.write("{}")
+          elif item.startswith("DELETE"):
+            files = []
+            for file in os.listdir(os.getcwd()):
+              files.append(file)
+            
+
+            toshow = item.replace("DELETE ","")
+            toshow = item.replace("DELETE","")
+            if toshow == "":
+              raise RuntimeError("ERROR: DELETION NOT SPECIFIED")
+            else:
+              toshow = toshow.replace(" ","")
+              run(f"rm -rf {os.getcwd()}/{toshow}.json")
+
+
 
                     
                       
